@@ -1,0 +1,23 @@
+<main>
+    <h1>Book Catalog</h1>
+    <div id="book-container"></div>
+</main>
+<script>
+    function loadBooks() {
+        fetch('http://localhost:3000/api/books')
+            .then(res => res.json())
+            .then(books => {
+                const container = document.getElementById('book-container');
+                container.innerHTML = books.map(b => `
+                    <div class="card">
+                        <h3>${b.title}</h3>
+                        <button onclick="deleteBook('${b._id}')" style="background:red">Delete</button>
+                    </div>
+                `).join('');
+            });
+    }
+    function deleteBook(id) {
+        fetch(`http://localhost:3000/api/books/${id}`, { method: 'DELETE' }).then(() => loadBooks());
+    }
+    loadBooks();
+</script>

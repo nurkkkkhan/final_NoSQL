@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile - Library NoSQL</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <h2>Library NoSQL</h2>
+        <a href="index.html">🏠 Dashboard</a>
+        <a href="catalog.html">📚 Book Catalog</a>
+        <a href="add-book.html">➕ Add New Book</a>
+        <a href="details.html">📝 Reviews & Details</a>
+        <a href="profile.html">👤 User Profile</a>
+    </nav>
+
+    <main>
+        <h1>User Profile & Activity</h1>
+        <div class="card">
+            <h3>Active Loans (Referenced Data)</h3>
+            <p><small>This section pulls data from the <strong>Loans</strong> collection using User IDs.</small></p>
+            <div id="loans-list">
+                </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <h3>Update Profile Settings ($set)</h3>
+            <input type="text" id="username" placeholder="New Username">
+            <button onclick="updateUser()">Update Username</button>
+        </div>
+    </main>
+
+    <script>
+        // Static ID for demo purposes - in a real app, this comes from Auth
+        const currentUserId = "65a1234567890abcdef12345"; 
+
+        async function loadUserLoans() {
+            try {
+                // Endpoint 7 from our backend
+                const res = await fetch(`http://localhost:3000/api/users/${currentUserId}/loans`);
+                const loans = await res.json();
+                const container = document.getElementById('loans-list');
+                
+                if (loans.length === 0) {
+                    container.innerHTML = "<p>No active loans found.</p>";
+                    return;
+                }
+
+                container.innerHTML = loans.map(loan => `
+                    <div style="padding: 10px; border-bottom: 1px solid #eee;">
+                        <strong>Book ID:</strong> ${loan.bookId} <br>
+                        <strong>Due Date:</strong> ${new Date(loan.dueDate).toLocaleDateString()}
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error("Error loading loans:", err);
+            }
+        }
+
+        async function updateUser() {
+            const newName = document.getElementById('username').value;
+            // Demonstrates Advanced Update Operator usage [cite: 31, 35]
+            await fetch(`http://localhost:3000/api/users/${currentUserId}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username: newName })
+            });
+            alert("Username updated in MongoDB using $set!");
+        }
+
+        loadUserLoans();
+    </script>
+</body>
+</html>

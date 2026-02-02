@@ -1,0 +1,17 @@
+<main>
+    <h1>Library Dashboard</h1>
+    <div id="stats" class="card">
+        <h3>Book Statistics (Aggregation)</h3>
+        <ul id="genre-list"></ul>
+    </div>
+</main>
+<script>
+    fetch('http://localhost:3000/api/stats/genres')
+        .then(res => res.json())
+        .then(data => {
+            const list = document.getElementById('genre-list');
+            data.forEach(item => {
+                list.innerHTML += `<li>${item._id}: ${item.count} books</li>`;
+            });
+        });
+</script>

@@ -1,0 +1,25 @@
+<main>
+    <h1>Add New Book</h1>
+    <form id="bookForm">
+        <input type="text" id="title" placeholder="Book Title" required>
+        <input type="text" id="genre" placeholder="Genre" required>
+        <textarea id="desc" placeholder="Description"></textarea>
+        <button type="submit">Save to MongoDB</button>
+    </form>
+</main>
+<script>
+    document.getElementById('bookForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const body = { 
+            title: document.getElementById('title').value, 
+            genre: document.getElementById('genre').value,
+            views: 0, reviews: [] 
+        };
+        await fetch('http://localhost:3000/api/books', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+        });
+        alert('Book Added!');
+    };
+</script>
