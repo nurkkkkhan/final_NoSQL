@@ -8,13 +8,13 @@ const swaggerJsdoc = require('swagger-jsdoc');
 
 const app = express();
 
-// --- Middleware ---
+
 app.use(express.json());
 app.use(cors());
-app.use(helmet()); // Requirement: Security [cite: 67]
-app.use(express.static('public')); // Serve your HTML files
+app.use(helmet());
+app.use(express.static('public')); 
 
-// --- Swagger Setup (Requirement: API Documentation/Bonus) [cite: 71, 75] ---
+
 const swaggerOptions = {
     definition: {
         openapi: '3.0.0',
