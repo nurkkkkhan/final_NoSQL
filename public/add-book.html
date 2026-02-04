@@ -1,11 +1,15 @@
 <main>
     <h1>Add New Book</h1>
-    <form id="bookForm">
-        <input type="text" id="title" placeholder="Book Title" required>
-        <input type="text" id="genre" placeholder="Genre" required>
-        <textarea id="desc" placeholder="Description"></textarea>
-        <button type="submit">Save to MongoDB</button>
-    </form>
+    <div class="card">
+        <form id="bookForm">
+            <input type="text" id="title" placeholder="Book Title" required style="width:100%; margin-bottom:10px;">
+            <input type="text" id="genre" placeholder="Genre" required style="width:100%; margin-bottom:10px;">
+            <textarea id="desc" placeholder="Description" style="width:100%; margin-bottom:10px;"></textarea>
+            <button type="submit" style="padding: 10px 20px; background: #2ecc71; color: white; border: none; cursor: pointer;">
+                Save to MongoDB
+            </button>
+        </form>
+    </div>
 </main>
 <script>
     document.getElementById('bookForm').onsubmit = async (e) => {
@@ -13,13 +17,13 @@
         const body = { 
             title: document.getElementById('title').value, 
             genre: document.getElementById('genre').value,
-            views: 0, reviews: [] 
+            description: document.getElementById('desc').value
         };
-        await fetch('http://localhost:3000/api/books', {
+        const res = await fetch('/api/books', { // Connected to server.js
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(body)
         });
-        alert('Book Added!');
+        if(res.ok) { alert('Book Added to NoSQL!'); window.location.href="catalog.html"; }
     };
 </script>

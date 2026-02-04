@@ -1,23 +1,27 @@
-<main>
-    <h1>Book Catalog</h1>
-    <div id="book-container"></div>
-</main>
-<script>
-    function loadBooks() {
-        fetch('http://localhost:3000/api/books')
-            .then(res => res.json())
-            .then(books => {
-                const container = document.getElementById('book-container');
-                container.innerHTML = books.map(b => `
-                    <div class="card">
-                        <h3>${b.title}</h3>
-                        <button onclick="deleteBook('${b._id}')" style="background:red">Delete</button>
-                    </div>
-                `).join('');
-            });
-    }
-    function deleteBook(id) {
-        fetch(`http://localhost:3000/api/books/${id}`, { method: 'DELETE' }).then(() => loadBooks());
-    }
+async function loadBooks() {
+    const res = await fetch('/api/books');
+    const books = await res.json();
+    const container = document.getElementById('book-container');
+    container.innerHTML = books.map(b => `
+        <div class="card" style="margin-bottom:10px; display:flex; justify-content:space-between;">
+            <div>
+                <h3>${b.title}</h3>
+                <p>Genre: ${b.genre} | Views: ${b.views || 0}</p>
+            </div>
+            <button onclick="deleteBook('${b._id}')" style="background:#e74c3c; color:white; border:none; padding:5px 15px; border-radius:4px; cursor:pointer;">
+                Delete
+            </button>
+        </div>
+    `).join('');
+}
+
+async function deleteBook(id) {
+    if(!confirm("Are you sure?")) return;
+    // Note: Admin key required as per the isAdmin middleware in server.js [cite: 38]
+    await fetch(`/api/books/${id}`, { 
+        method: 'DELETE',
+        headers: { 'x-api-key': 'admin-secret-token' } 
+    });
     loadBooks();
-</script>
+}
+loadBooks();
