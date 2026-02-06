@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .btn-del { color: red; cursor: pointer; border: none; background: none; }
+        nav { margin-bottom: 20px; padding: 10px; background: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a> | <a href="search.html">Manage Tags</a> | 
+        <a href="admin.html">Admin Panel</a> | <a href="stats.html">Analytics</a>
+    </nav>
+    <h2>⚙️ Inventory Control</h2>
+    <table id="adminTable">
+        <thead>
+            <tr><th>Title</th><th>Status</th><th>Exchanges</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <script>
+        async function load() {
+            const res = await fetch('/api/books');
+            const books = await res.json();
+            document.getElementById('tableBody').innerHTML = books.map(b => `
+                <tr>
+                    <td>${b.title}</td>
+                    <td>${b.status}</td>
+                    <td>${b.exchangeCount}</td>
+                    <td>
+                        <button onclick="updateStatus('${b._id}', 'Archived')">Archive</button>
+                        <button class="btn-del" onclick="deleteBook('${b._id}')">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function updateStatus(id, s) {
+            await fetch(`/api/books/${id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ status: s })
+            });
+            load();
+        }
+
+        async function deleteBook(id) {
+            if(confirm("Are you sure?")) {
+                await fetch(`/api/books/${id}`, { method: 'DELETE' });
+                load();
+            }
+        }
+        load();
+    </script>
+</body>
+</html>

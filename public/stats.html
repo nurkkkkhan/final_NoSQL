@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Library Analytics</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        .stat-card { background: #e9ecef; padding: 20px; border-radius: 8px; margin-bottom: 10px; display: inline-block; min-width: 200px; }
+        nav { margin-bottom: 20px; padding: 10px; background: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a> | <a href="search.html">Manage Tags</a> | 
+        <a href="admin.html">Admin Panel</a> | <a href="stats.html">Analytics</a>
+    </nav>
+    <h2>📊 Library Statistics</h2>
+    <div id="statsContainer">Loading...</div>
+
+    <script>
+        async function fetchStats() {
+            const res = await fetch('/api/stats');
+            const data = await res.json();
+            document.getElementById('statsContainer').innerHTML = data.map(s => `
+                <div class="stat-card">
+                    <h3>Status: ${s._id}</h3>
+                    <p>Total Books: <strong>${s.count}</strong></p>
+                    <p>Avg Exchanges: <strong>${s.avgExchanges.toFixed(2)}</strong></p>
+                </div>
+            `).join('');
+        }
+        fetchStats();
+    </script>
+</body>
+</html>

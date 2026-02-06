@@ -1,127 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Library NoSQL · Dashboard</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <title>Community Library | Dashboard</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; line-height: 1.6; }
+        nav { margin-bottom: 20px; padding: 10px; background: #f4f4f4; }
+        .book-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
+        .stats-btn { background: #28a745; color: white; border: none; padding: 5px 10px; cursor: pointer; }
+    </style>
 </head>
 <body>
     <nav>
-        <div class="brand">
-            <div class="brand-title">Library NoSQL</div>
-            <div class="brand-tagline">MongoDB-powered community catalog</div>
-        </div>
-
-        <div class="nav-section-label">Main</div>
-        <div class="nav-links">
-            <a href="index.html" class="active">
-                <span class="icon"></span>
-                <span>Dashboard</span>
-            </a>
-            <a href="catalog.html">
-                <span class="icon"></span>
-                <span>Book Catalog</span>
-            </a>
-            <a href="add-book.html">
-                <span class="icon"></span>
-                <span>Add New Book</span>
-            </a>
-            <a href="details.html">
-                <span class="icon"></span>
-                <span>Reviews &amp; Details</span>
-            </a>
-            <a href="profile.html">
-                <span class="icon"></span>
-                <span>User Profile</span>
-            </a>
-        </div>
-
-        <div class="nav-footer">
-            <div>Backed by MongoDB aggregation &amp; update operators.</div>
-        </div>
+        <strong>📚 Library System</strong> | 
+        <a href="index.html">Home</a> | 
+        <a href="search.html">Manage Tags</a> | 
+        <a href="admin.html">Admin Panel</a> | 
+        <a href="stats.html">Analytics</a>
     </nav>
 
-    <main>
-        <header class="page-header">
-            <div class="page-meta">Overview</div>
-            <div class="page-title-row">
-                <h1>System Dashboard</h1>
-                <div class="actions">
-                    <button class="btn btn-ghost" onclick="window.location.href='catalog.html'">
-                        View catalog
-                    </button>
-                    <button class="btn btn-primary" onclick="window.location.href='add-book.html'">
-                        Add book
-                    </button>
-                </div>
-            </div>
-            <p>Monitor your library at a glance, powered by MongoDB aggregation pipelines.</p>
-        </header>
+    <h2>Donate a Book</h2>
+    <div class="book-card">
+        <input id="title" placeholder="Book Title">
+        <input id="author" placeholder="Author Name">
+        <button onclick="addBook()">Add to Library</button>
+    </div>
 
-        <section class="card-grid">
-            <article class="card">
-                <h2>Genre distribution</h2>
-                <p class="muted-text">
-                    Live data from <span class="pill">/api/stats/genres</span> (multi-stage aggregation).
-                </p>
-                <div id="stats-container" class="stat-list">
-                    <div class="stat-row">
-                        <span class="muted-text">Loading analytics…</span>
-                    </div>
-                </div>
-            </article>
-
-            <article class="card stack-lg">
-                <div class="stack">
-                    <h2>Quick tips</h2>
-                    <p class="muted-text">
-                        This dashboard is wired directly into your NoSQL backend. Use it to
-                        quickly verify aggregation pipelines and sample data.
-                    </p>
-                </div>
-                <div class="list-divider"></div>
-                <ul class="stack muted-text">
-                    <li>· Add a few books, then refresh to see genres populate here.</li>
-                    <li>· Use the catalog page to delete or inspect records.</li>
-                    <li>· Profile &amp; details pages demonstrate reference lookups and array operators.</li>
-                </ul>
-            </article>
-        </section>
-    </main>
+    <h2>Current Inventory</h2>
+    <div id="bookList"></div>
 
     <script>
-        // API Integration: Fetching aggregation data
-        async function fetchStats() {
-            try {
-                const response = await fetch('http://localhost:3000/api/stats/genres');
-                const data = await response.json();
-
-                const container = document.getElementById('stats-container');
-                if (!Array.isArray(data) || data.length === 0) {
-                    container.innerHTML =
-                        "<div class='stat-row'><span class='muted-text'>No data found. Add books to see stats.</span></div>";
-                    return;
-                }
-
-                container.innerHTML = data
-                    .map(
-                        (item) => `
-                    <div class="stat-row">
-                        <span><strong>${item._id || 'Uncategorized'}</strong></span>
-                        <span class="badge">${item.count} book${item.count === 1 ? '' : 's'}</span>
-                    </div>
-                `
-                    )
-                    .join('');
-            } catch (error) {
-                console.error('Error fetching stats:', error);
-                document.getElementById('stats-container').innerHTML =
-                    "<div class='stat-row'><span class='muted-text' style='color:#b91c1c'>Backend not connected. Ensure server.js is running.</span></div>";
-            }
+        async function loadBooks() {
+            const res = await fetch('/api/books');
+            const books = await res.json();
+            document.getElementById('bookList').innerHTML = books.map(b => `
+                <div class="book-card">
+                    <h3>${b.title}</h3>
+                    <p>Author: ${b.author} | Status: <strong>${b.status}</strong></p>
+                    <button class="stats-btn" onclick="exchange('${b._id}')">Exchange This Book</button>
+                </div>
+            `).join('');
         }
 
-        fetchStats();
+        async function addBook() {
+            const title = document.getElementById('title').value;
+            const author = document.getElementById('author').value;
+            await fetch('/api/books', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ title, author })
+            });
+            loadBooks();
+        }
+
+        async function exchange(id) {
+            await fetch(`/api/books/${id}/exchange`, { method: 'PATCH' });
+            loadBooks();
+        }
+
+        loadBooks();
     </script>
 </body>
 </html>

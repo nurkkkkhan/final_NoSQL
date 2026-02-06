@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Tags</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        .tag-item { background: #007bff; color: white; padding: 2px 8px; border-radius: 4px; margin-right: 5px; font-size: 0.8em; }
+        .book-row { border-bottom: 1px solid #ccc; padding: 10px 0; }
+        nav { margin-bottom: 20px; padding: 10px; background: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a> | <a href="search.html">Manage Tags</a> | 
+        <a href="admin.html">Admin Panel</a> | <a href="stats.html">Analytics</a>
+    </nav>
+    <h2>🏷️ Categorize Books</h2>
+    <div id="searchList"></div>
+
+    <script>
+        async function load() {
+            const res = await fetch('/api/books');
+            const books = await res.json();
+            document.getElementById('searchList').innerHTML = books.map(b => `
+                <div class="book-row">
+                    <strong>${b.title}</strong><br>
+                    <div id="tags-${b._id}">${(b.tags || []).map(t => `<span class="tag-item">${t}</span>`).join('')}</div>
+                    <input id="input-${b._id}" placeholder="Add tag (e.g. Fiction)">
+                    <button onclick="addTag('${b._id}')">Add</button>
+                </div>
+            `).join('');
+        }
+
+        async function addTag(id) {
+            const tag = document.getElementById(`input-${id}`).value;
+            if(!tag) return;
+            await fetch(`/api/books/${id}/tags`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ tag })
+            });
+            load();
+        }
+        load();
+    </script>
+</body>
+</html>
