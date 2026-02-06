@@ -1,35 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Library Analytics</title>
-    <style>
-        body { font-family: sans-serif; margin: 20px; }
-        .stat-card { background: #e9ecef; padding: 20px; border-radius: 8px; margin-bottom: 10px; display: inline-block; min-width: 200px; }
-        nav { margin-bottom: 20px; padding: 10px; background: #f4f4f4; }
-    </style>
-</head>
+<html>
 <body>
-    <nav>
-        <a href="index.html">Home</a> | <a href="search.html">Manage Tags</a> | 
-        <a href="admin.html">Admin Panel</a> | <a href="stats.html">Analytics</a>
-    </nav>
-    <h2>📊 Library Statistics</h2>
-    <div id="statsContainer">Loading...</div>
-
+    <nav><a href="index.html">Home</a> | <a href="search.html">Tags</a> | <a href="admin.html">Admin</a> | <a href="stats.html">Stats</a></nav>
+    <h2>Library Insights</h2>
+    <div id="s"></div>
     <script>
-        async function fetchStats() {
+        async function load() {
             const res = await fetch('/api/stats');
             const data = await res.json();
-            document.getElementById('statsContainer').innerHTML = data.map(s => `
-                <div class="stat-card">
-                    <h3>Status: ${s._id}</h3>
-                    <p>Total Books: <strong>${s.count}</strong></p>
-                    <p>Avg Exchanges: <strong>${s.avgExchanges.toFixed(2)}</strong></p>
-                </div>
-            `).join('');
+            document.getElementById('s').innerHTML = data.map(i => `
+                <div style="background:#eee; padding:10px; margin:5px">
+                    <b>Status:</b> ${i._id} <br>
+                    <b>Total Books:</b> ${i.total} <br>
+                    <b>Average Popularity:</b> ${i.avgExchanges.toFixed(2)}
+                </div>`).join('');
         }
-        fetchStats();
+        load();
     </script>
 </body>
 </html>

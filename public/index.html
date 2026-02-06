@@ -1,64 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Community Library | Dashboard</title>
-    <style>
-        body { font-family: sans-serif; margin: 20px; line-height: 1.6; }
-        nav { margin-bottom: 20px; padding: 10px; background: #f4f4f4; }
-        .book-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
-        .stats-btn { background: #28a745; color: white; border: none; padding: 5px 10px; cursor: pointer; }
-    </style>
-</head>
+<html>
+<head><title>Library Home</title><link rel="stylesheet" href="style.css"></head>
 <body>
-    <nav>
-        <strong>📚 Library System</strong> | 
-        <a href="index.html">Home</a> | 
-        <a href="search.html">Manage Tags</a> | 
-        <a href="admin.html">Admin Panel</a> | 
-        <a href="stats.html">Analytics</a>
-    </nav>
-
-    <h2>Donate a Book</h2>
-    <div class="book-card">
-        <input id="title" placeholder="Book Title">
-        <input id="author" placeholder="Author Name">
-        <button onclick="addBook()">Add to Library</button>
-    </div>
-
-    <h2>Current Inventory</h2>
-    <div id="bookList"></div>
-
+    <nav><a href="index.html">Home</a> | <a href="search.html">Tags</a> | <a href="admin.html">Admin</a> | <a href="stats.html">Stats</a></nav>
+    <h2>Add to Community Library</h2>
+    <input id="t" placeholder="Title"><br>
+    <input id="a" placeholder="Author"><br>
+    <textarea id="d" placeholder="Book Description"></textarea><br>
+    <button onclick="add()">Donate Book</button>
+    <hr>
+    <div id="list"></div>
     <script>
-        async function loadBooks() {
+        async function load() {
             const res = await fetch('/api/books');
-            const books = await res.json();
-            document.getElementById('bookList').innerHTML = books.map(b => `
-                <div class="book-card">
+            const data = await res.json();
+            document.getElementById('list').innerHTML = data.map(b => `
+                <div style="border:1px solid #ccc; padding:10px; margin:5px">
                     <h3>${b.title}</h3>
-                    <p>Author: ${b.author} | Status: <strong>${b.status}</strong></p>
-                    <button class="stats-btn" onclick="exchange('${b._id}')">Exchange This Book</button>
-                </div>
-            `).join('');
+                    <p><i>${b.author}</i></p>
+                    <p>${b.description || 'No description.'}</p>
+                    <button onclick="exchange('${b._id}')">Exchange (${b.exchangeCount})</button>
+                </div>`).join('');
         }
-
-        async function addBook() {
-            const title = document.getElementById('title').value;
-            const author = document.getElementById('author').value;
-            await fetch('/api/books', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ title, author })
-            });
-            loadBooks();
+        async function add() {
+            await fetch('/api/books', { method: 'POST', headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ title: t.value, author: a.value, description: d.value })});
+            load();
         }
-
         async function exchange(id) {
             await fetch(`/api/books/${id}/exchange`, { method: 'PATCH' });
-            loadBooks();
+            load();
         }
-
-        loadBooks();
+        load();
     </script>
 </body>
 </html>
