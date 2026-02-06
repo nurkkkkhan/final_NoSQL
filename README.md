@@ -14,7 +14,7 @@ Users (Referenced): Manages user profiles and security roles (Admin/User).
 Categories & Audit_Logs (Flat): Simple collections used for genre lookups and tracking system changes for security. 
 
 4. API Documentation
-The backend exposes 7 RESTful endpoints, meeting the minimum requirement of 8 for a single-student project:
+The backend exposes 8 RESTful endpoints, meeting the minimum requirement of 8 for a single-student project:
 GET /api/books: Retrieves all books from the catalog.
 POST /api/books: Creates a new book record.
 PUT /api/books/:id: Updates book details using the $set operator.
