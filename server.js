@@ -11,11 +11,9 @@ mongoose.connect(process.env.MONGO_URI);
 const BookSchema = new mongoose.Schema({
     title: { type: String, required: true },
     author: String,
-    description: String, 
+    description: String,
     status: { type: String, default: 'Available' },
-    tags: [String], 
     exchangeCount: { type: Number, default: 0 },
-    ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 });
 
 BookSchema.index({ title: 1, author: 1 });
@@ -31,7 +29,7 @@ app.put('/api/books/:id', async (req, res) => res.json(await Book.findByIdAndUpd
 
 app.delete('/api/books/:id', async (req, res) => {
     await Book.findByIdAndDelete(req.params.id);
-    res.json({ message: "Deleted" });
+    res.json({ message: "Deleted" });  
 });
 
 app.patch('/api/books/:id/exchange', async (req, res) => {
